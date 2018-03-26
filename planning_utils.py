@@ -29,8 +29,8 @@ def create_grid(data, drone_altitude, safety_distance):
 
     # given the minimum and maximum coordinates we can
     # calculate the size of the grid.
-    north_size = int(np.ceil((north_max - north_min + 1)))
-    east_size = int(np.ceil((east_max - east_min + 1)))
+    north_size = int(np.ceil(north_max - north_min))
+    east_size = int(np.ceil(east_max - east_min))
 
     # Initialize an empty grid
     grid = np.zeros((north_size, east_size))
@@ -191,10 +191,6 @@ def valid_actions(grid, current_node):
 
 
 def a_star(grid, h, start, goal):
-    """
-    Given a grid and heuristic function returns
-    the lowest cost path from start to goal.
-    """
 
     path = []
     path_cost = 0
@@ -207,24 +203,28 @@ def a_star(grid, h, start, goal):
 
     while not queue.empty():
         item = queue.get()
-        current_cost = item[0]
         current_node = item[1]
+        if current_node == start:
+            current_cost = 0.0
+        else:
+            current_cost = branch[current_node][0]
 
         if current_node == goal:
             print('Found a path.')
             found = True
             break
         else:
-            # Get the new vertexes connected to the current vertex
-            for a in valid_actions(grid, current_node):
-                next_node = (current_node[0] + a.delta[0], current_node[1] + a.delta[1])
-                new_cost = current_cost + a.cost + h(next_node, goal)
+            for action in valid_actions(grid, current_node):
+                # get the tuple representation
+                da = action.delta
+                next_node = (current_node[0] + da[0], current_node[1] + da[1])
+                branch_cost = current_cost + action.cost
+                queue_cost = branch_cost + h(next_node, goal)
 
                 if next_node not in visited:
                     visited.add(next_node)
-                    queue.put((new_cost, next_node))
-
-                    branch[next_node] = (new_cost, current_node, a)
+                    branch[next_node] = (branch_cost, current_node, action)
+                    queue.put((queue_cost, next_node))
 
     if found:
         # retrace steps

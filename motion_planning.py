@@ -191,7 +191,7 @@ class MotionPlanning(Drone):
         # Set self.waypoints
         self.waypoints = waypoints
         print(waypoints)
-        self.send_waypoints()
+        self.send_waypoints() # send waypoints to sim (this is just for visualization of waypoints)
 
     def start(self):
         self.start_log("Logs", "NavLog.txt")
