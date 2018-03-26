@@ -17,13 +17,6 @@
 ## [Rubric](https://review.udacity.com/#!/rubrics/1534/view) Points
 ### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.
 
----
-### Writeup / README
-
-#### 1. Provide a Writeup / README that includes all the rubric points and how you addressed each one.  You can submit your writeup as markdown or pdf.
-
-You're reading it! Below I describe how I addressed each rubric point and where in my code each point is handled.
-
 ### Explain the Starter Code
 
 #### 1. Explain the functionality of what's provided in `motion_planning.py` and `planning_utils.py`
@@ -36,41 +29,43 @@ You're reading it! Below I describe how I addressed each rubric point and where 
 ### Implementing Your Path Planning Algorithm
 
 #### 1. Set your global home position
-Here students should read the first line of the csv file, extract lat0 and lon0 as floating point values and use the self.set_home_position() method to set global home. Explain briefly how you accomplished this in your code.
 
-
-And here is a lovely picture of our downtown San Francisco environment from above!
-![Map of SF](./misc/map.png)
+- Read the first line of the csv file using `readline` function
+- Extract the numbers of latitude/longtitude from text using RegExp pattern matching
 
 #### 2. Set your current local position
-Here as long as you successfully determine your local position relative to global home you'll be all set. Explain briefly how you accomplished this in your code.
 
-
-Meanwhile, here's a picture of me flying through the trees!
-![Forest Flying](./misc/in_the_trees.png)
+Invoke `global_to_location` function to convert the global current location into a local one, by passing `self.global_position` and `self.global_home` as parameters.
 
 #### 3. Set grid start position from local position
-This is another step in adding flexibility to the start location. As long as it works you're good to go!
+
+Convert the current location into grid coordinates, and use it as start point of the path.
 
 #### 4. Set grid goal position from geodetic coords
-This step is to add flexibility to the desired goal location. Should be able to choose any (lat, lon) within the map and have it rendered to a goal location on the grid.
+
+- Use `global_to_location` function to convert a given global cooridinate into a local position.
+- Convert the local position into grid coordinate, and use it as the goal position.
 
 #### 5. Modify A* to include diagonal motion (or replace A* altogether)
-Minimal requirement here is to modify the code in planning_utils() to update the A* implementation to include diagonal motions on the grid that have a cost of sqrt(2), but more creative solutions are welcome. Explain the code you used to accomplish this step.
+
+Include diagonal motion:
+
+- Define diagonal actions: `north east`, `north west`, `south east` and `south west`, and the cost / delta for each of them.
+- Modify `valid_actions` funcion, to remove corresponding actions when any diagonal cell is off the grid or is infeasible.
 
 #### 6. Cull waypoints
-For this step you can use a collinearity test or ray tracing method like Bresenham. The idea is simply to prune your path of unnecessary waypoints. Explain the code you used to accomplish this step.
 
+Here the Bresenham algorithm is used to detect redundent waypoints, implemented in function `prune_path_bresenham`.
 
+- Iterates the path, checking 3 points in each step
+- Run Bresenham algorithm on point#1 and point#3, which produces cells on the line from `p1` to `p3`
+- If point#2 is on the line, remove it
+- And now, point#3 becomes the second point, run the iteration again, until no more points can be removed
+- Move to next point on the path, do the same checking
+- Finally we can get the pruned path
 
 ### Execute the flight
 #### 1. Does it work?
 It works!
 
 ### Double check that you've met specifications for each of the [rubric](https://review.udacity.com/#!/rubrics/1534/view) points.
-
-# Extra Challenges: Real World Planning
-
-For an extra challenge, consider implementing some of the techniques described in the "Real World Planning" lesson. You could try implementing a vehicle model to take dynamic constraints into account, or implement a replanning method to invoke if you get off course or encounter unexpected obstacles.
-
-
